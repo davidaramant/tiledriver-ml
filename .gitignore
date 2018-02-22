@@ -103,3 +103,5 @@ ENV/
 #Custom
 *.metamap
 *.png
+metamaps
+metamaps_input
