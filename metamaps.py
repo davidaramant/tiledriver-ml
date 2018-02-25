@@ -20,7 +20,8 @@ class EncodingDim(IntEnum):
     SOLID = 1
     PASSAGE = 2
 
-def generate_junk_map():
+def generate_random_map():
+    """Generate a random map"""
     width = 64
     height = 64
     size = width * height
@@ -34,6 +35,14 @@ def generate_junk_map():
     junk_map.shape = (width, height, len(EncodingDim))
 
     return junk_map
+
+def random_map_batch_generator(batch_size):
+    """Generate batches of random maps"""
+    while True:
+        batch = np.zeros([batch_size,64,64,len(EncodingDim)])
+        for i in range(batch_size):
+            batch[i,] = generate_random_map()
+        yield batch
 
 def load_metamap(filename):
     """Loads a metamap from a file into a numpy array of shape (width, height, 3)"""
@@ -87,5 +96,7 @@ def save_metamap(metamap, filename):
     return
 
 if __name__ == '__main__':
-    metamap = generate_junk_map()
-    print(metamap)
+    #Verify random map generator
+    for batch in random_map_batch_generator(2):
+        print('batch shape:', batch.shape)
+        break
