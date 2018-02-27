@@ -2,6 +2,7 @@
 import struct
 from enum import IntEnum
 import numpy as np
+import os
 import random
 
 METAMAP_FILE_VERSION = 0x100
@@ -42,6 +43,16 @@ def random_map_batch_generator(batch_size):
         batch = np.zeros([batch_size,64,64,len(EncodingDim)])
         for i in range(batch_size):
             batch[i,] = generate_random_map()
+        yield batch
+
+def load_metamap_batch_generator(batch_size,dirname):
+    """Loads a batch of metamaps from the given directory"""
+    files = os.listdir(dirname)
+    batch = 0
+    for batch_index in range(int(len(files)/batch_size)):
+        batch = np.zeros([batch_size,64,64,len(EncodingDim)])
+        for i in range(batch_size):
+            batch[i,] = load_metamap(os.path.join(dirname,files[batch_index*batch_size + i]))
         yield batch
 
 def load_metamap(filename):
@@ -97,6 +108,6 @@ def save_metamap(metamap, filename):
 
 if __name__ == '__main__':
     #Verify random map generator
-    for batch in random_map_batch_generator(2):
+    for batch in load_metamap_batch_generator(2,"metamaps_input\\train"):
         print('batch shape:', batch.shape)
         break
