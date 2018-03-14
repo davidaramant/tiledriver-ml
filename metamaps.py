@@ -54,6 +54,14 @@ def load_metamap_batch_generator(batch_size,dirname):
         for i in range(batch_size):
             batch[i,] = load_metamap(os.path.join(dirname,files[batch_index*batch_size + i]))
         yield batch
+        
+def create_model_input_generator(batch_size,map_input_path):
+    """Returns a generator that yields batches of (input,targets)"""
+    # Make a giant array of booleans for the total number of maps we want to return
+    # half of them will be true (real maps), others with be false (fake maps)
+    # shuffle this
+    # return batches from this list
+    return
 
 def load_metamap(filename):
     """Loads a metamap from a file into a numpy array of shape (width, height, 3)"""
