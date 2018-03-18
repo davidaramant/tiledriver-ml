@@ -1,11 +1,13 @@
 """Provides methods for loading/saving metamaps"""
 import struct
 from enum import IntEnum
+from keras.utils import Sequence
 import numpy as np
 import os
 import random
 
 METAMAP_FILE_VERSION = 0x100
+
 
 class TileType(IntEnum):
     """Tile types in a metamap"""
@@ -15,11 +17,46 @@ class TileType(IntEnum):
     PUSHWALL = 3
     DOOR = 4
 
+
 class EncodingDim(IntEnum):
     """Dimensions for the one-hot encoding of a metamap"""
     PLAYABLE = 0
     SOLID = 1
     PASSAGE = 2
+
+
+class MetaMapsSequence(Sequence):
+    """A sequence of real metamaps from a directory and randomly generated ones"""
+
+    def __init__(self, maps_dir, batch_size):
+        self.maps_dir = maps_dir
+        self.batch_size = batch_size
+        self.map_files = os.listdir(maps_dir)
+        NUM_MAPS = len(self.map_files)
+        real_maps = [(index, True) for index in range(NUM_MAPS)]
+        fake_maps = [(index + NUM_MAPS, False) for index in range(NUM_MAPS)]
+        map_order = real_maps + fake_maps
+        np.random.shuffle(map_order)
+        self.map_order = map_order
+
+    def __len__(self):
+        return int(len(self.map_files) / self.batch_size)
+
+    def __getitem__(self, idx):
+        map_batch = np.zeros((self.batch_size, 64, 64, len(EncodingDim)))
+        label_batch = np.zeros((self.batch_size))
+
+        for i in range(self.batch_size):
+            (index, real_map) = self.map_order[idx * self.batch_size + i]
+            if real_map:
+                label_batch[i] = 1
+                map_batch[i:] = load_metamap(
+                    os.path.join(self.maps_dir, self.map_files[index]))
+            else:
+                map_batch[i:] = generate_random_map()
+
+        return map_batch, label_batch
+
 
 def generate_random_map():
     """Generate a random map"""
@@ -37,31 +74,27 @@ def generate_random_map():
 
     return junk_map
 
+
 def random_map_batch_generator(batch_size):
     """Generate batches of random maps"""
     while True:
-        batch = np.zeros([batch_size,64,64,len(EncodingDim)])
+        batch = np.zeros([batch_size, 64, 64, len(EncodingDim)])
         for i in range(batch_size):
-            batch[i,] = generate_random_map()
+            batch[i, ] = generate_random_map()
         yield batch
 
-def load_metamap_batch_generator(batch_size,dirname):
+
+def load_metamap_batch_generator(batch_size, dirname):
     """Loads a batch of metamaps from the given directory"""
     files = os.listdir(dirname)
     batch = 0
-    for batch_index in range(int(len(files)/batch_size)):
-        batch = np.zeros([batch_size,64,64,len(EncodingDim)])
+    for batch_index in range(int(len(files) / batch_size)):
+        batch = np.zeros([batch_size, 64, 64, len(EncodingDim)])
         for i in range(batch_size):
-            batch[i,] = load_metamap(os.path.join(dirname,files[batch_index*batch_size + i]))
+            batch[i, ] = load_metamap(
+                os.path.join(dirname, files[batch_index * batch_size + i]))
         yield batch
-        
-def create_model_input_generator(batch_size,map_input_path):
-    """Returns a generator that yields batches of (input,targets)"""
-    # Make a giant array of booleans for the total number of maps we want to return
-    # half of them will be true (real maps), others with be false (fake maps)
-    # shuffle this
-    # return batches from this list
-    return
+
 
 def load_metamap(filename):
     """Loads a metamap from a file into a numpy array of shape (width, height, 3)"""
@@ -91,6 +124,7 @@ def load_metamap(filename):
 
         return one_hot
 
+
 def save_metamap(metamap, filename):
     """Saves a metamap to a file"""
     with open(filename, "wb") as fout:
@@ -114,8 +148,6 @@ def save_metamap(metamap, filename):
                 fout.write(struct.pack('b', tile_type))
     return
 
+
 if __name__ == '__main__':
-    #Verify random map generator
-    for batch in load_metamap_batch_generator(2,"metamaps_input\\train"):
-        print('batch shape:', batch.shape)
-        break
+    print("Nothing right now")
