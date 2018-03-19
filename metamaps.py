@@ -40,7 +40,7 @@ class MetaMapsSequence(Sequence):
         self.map_order = map_order
 
     def __len__(self):
-        return int(len(self.map_files) / self.batch_size)
+        return int(len(self.map_order) / self.batch_size)
 
     def __getitem__(self, idx):
         map_batch = np.zeros((self.batch_size, 64, 64, len(EncodingDim)))
@@ -73,27 +73,6 @@ def generate_random_map():
     junk_map.shape = (width, height, len(EncodingDim))
 
     return junk_map
-
-
-def random_map_batch_generator(batch_size):
-    """Generate batches of random maps"""
-    while True:
-        batch = np.zeros([batch_size, 64, 64, len(EncodingDim)])
-        for i in range(batch_size):
-            batch[i, ] = generate_random_map()
-        yield batch
-
-
-def load_metamap_batch_generator(batch_size, dirname):
-    """Loads a batch of metamaps from the given directory"""
-    files = os.listdir(dirname)
-    batch = 0
-    for batch_index in range(int(len(files) / batch_size)):
-        batch = np.zeros([batch_size, 64, 64, len(EncodingDim)])
-        for i in range(batch_size):
-            batch[i, ] = load_metamap(
-                os.path.join(dirname, files[batch_index * batch_size + i]))
-        yield batch
 
 
 def load_metamap(filename):
