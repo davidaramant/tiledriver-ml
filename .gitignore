@@ -106,3 +106,4 @@ ENV/
 metamaps
 metamaps_input
 /.vscode/settings.json
+*.h5
