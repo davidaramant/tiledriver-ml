@@ -8,7 +8,6 @@ import random
 
 METAMAP_FILE_VERSION = 0x100
 
-
 class TileType(IntEnum):
     """Tile types in a metamap"""
     UNREACHABLE = 0
@@ -75,6 +74,42 @@ def generate_random_map():
     return junk_map
 
 
+def load_all_metamaps(dirname):
+    """Loads all the metamaps in the given directory, returning a giant numpy array"""
+    map_names = os.listdir(dirname)
+    all_maps = np.zeros((len(map_names), 64, 64, len(EncodingDim)))
+
+    for index, map_name in enumerate(map_names):
+        load_metamap_into(os.path.join(dirname, map_name), all_maps, index)
+
+    return all_maps
+
+
+def load_metamap_into(filename, all_maps, index):
+    """Loads a metamap from a file into a numpy array of shape (width, height, 3)"""
+    with open(filename, "rb") as fin:
+        version = struct.unpack('Q', fin.read(8))[0]
+
+        if version != METAMAP_FILE_VERSION:
+            raise ValueError("Unsupported metamap version")
+
+        width = struct.unpack('i', fin.read(4))[0]
+        height = struct.unpack('i', fin.read(4))[0]
+
+        raw_map = np.fromfile(fin, dtype=np.uint8)
+        raw_map.shape = (width, height)
+
+        for y in range(height):
+            for x in range(width):
+                tile_type = TileType(raw_map[y, x])
+                if tile_type == TileType.EMPTY:
+                    all_maps[index, y, x, EncodingDim.PLAYABLE] = 1
+                elif tile_type == TileType.UNREACHABLE or tile_type == TileType.WALL:
+                    all_maps[index, y, x, EncodingDim.SOLID] = 1
+                elif tile_type == TileType.PUSHWALL or tile_type == TileType.DOOR:
+                    all_maps[index, y, x, EncodingDim.PASSAGE] = 1
+
+
 def load_metamap(filename):
     """Loads a metamap from a file into a numpy array of shape (width, height, 3)"""
     with open(filename, "rb") as fin:
@@ -126,7 +161,3 @@ def save_metamap(metamap, filename):
 
                 fout.write(struct.pack('b', tile_type))
     return
-
-
-if __name__ == '__main__':
-    print("Nothing right now")
