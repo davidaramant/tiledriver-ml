@@ -16,13 +16,19 @@ class TileType(IntEnum):
     PUSHWALL = 3
     DOOR = 4
 
-
 class EncodingDim(IntEnum):
     """Dimensions for the one-hot encoding of a metamap"""
     PLAYABLE = 0
     SOLID = 1
     PASSAGE = 2
 
+TileTypeToEncodingDim = {
+    TileType.UNREACHABLE: EncodingDim.SOLID,
+    TileType.EMPTY: EncodingDim.PLAYABLE,
+    TileType.WALL: EncodingDim.SOLID,
+    TileType.PUSHWALL: EncodingDim.PASSAGE,
+    TileType.DOOR: EncodingDim.PASSAGE,
+    }
 
 class MetaMapsSequence(Sequence):
     """A sequence of real metamaps from a directory and randomly generated ones"""
@@ -102,12 +108,7 @@ def load_metamap_into(filename, all_maps, index):
         for y in range(height):
             for x in range(width):
                 tile_type = TileType(raw_map[y, x])
-                if tile_type == TileType.EMPTY:
-                    all_maps[index, y, x, EncodingDim.PLAYABLE] = 1
-                elif tile_type == TileType.UNREACHABLE or tile_type == TileType.WALL:
-                    all_maps[index, y, x, EncodingDim.SOLID] = 1
-                elif tile_type == TileType.PUSHWALL or tile_type == TileType.DOOR:
-                    all_maps[index, y, x, EncodingDim.PASSAGE] = 1
+                all_maps[index, y, x, TileTypeToEncodingDim[tile_type]] = 1
 
 
 def load_metamap(filename):
@@ -127,12 +128,7 @@ def load_metamap(filename):
 
         for i in range(size):
             tile_type = TileType(raw_map[i])
-            if tile_type == TileType.EMPTY:
-                one_hot[i, EncodingDim.PLAYABLE] = 1
-            elif tile_type == TileType.UNREACHABLE or tile_type == TileType.WALL:
-                one_hot[i, EncodingDim.SOLID] = 1
-            elif tile_type == TileType.PUSHWALL or tile_type == TileType.DOOR:
-                one_hot[i, EncodingDim.PASSAGE] = 1
+            one_hot[i, TileTypeToEncodingDim[tile_type]] = 1
 
         one_hot.shape = (width, height, len(EncodingDim))
 
