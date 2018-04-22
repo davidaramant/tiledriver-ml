@@ -5,6 +5,7 @@ from keras.utils import Sequence
 import numpy as np
 import os
 import random
+import numbers
 
 METAMAP_FILE_VERSION = 0x100
 
@@ -80,9 +81,11 @@ def generate_random_map():
     return junk_map
 
 
-def load_all_metamaps(dirname):
+def load_all_metamaps(dirname, number_cap=None):
     """Loads all the metamaps in the given directory, returning a giant numpy array"""
     map_names = os.listdir(dirname)
+    if isinstance(number_cap, numbers.Integral) and number_cap > 0:
+        map_names = map_names[:number_cap]
     all_maps = np.zeros((len(map_names), 64, 64, len(EncodingDim)))
 
     for index, map_name in enumerate(map_names):
