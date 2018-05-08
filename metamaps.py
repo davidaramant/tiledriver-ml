@@ -81,6 +81,14 @@ def generate_random_map():
     return junk_map
 
 
+def load_smashed_metamap(filename):
+    """Loads a condensed metamap file"""
+    with open(filename, "rb") as fin:
+        mega_meta_map = np.fromfile(fin, dtype=np.uint8)
+    mega_meta_map.shape = (int(mega_meta_map.shape[0]/64/3), 64, 3)
+    return mega_meta_map
+
+
 def load_all_metamaps(dirname, number_cap=None):
     """Loads all the metamaps in the given directory, returning a giant numpy array"""
     map_names = os.listdir(dirname)
