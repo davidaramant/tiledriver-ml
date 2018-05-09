@@ -85,7 +85,6 @@ def load_smashed_metamap(filename):
     """Loads a condensed metamap file"""
     with open(filename, "rb") as fin:
         mega_meta_map = np.fromfile(fin, dtype=np.uint8)
-    mega_meta_map.shape = (int(mega_meta_map.shape[0]/64/3), 64, 3)
     return mega_meta_map
 
 
