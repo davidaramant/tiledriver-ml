@@ -169,15 +169,15 @@ def save_metamap(metamap, filename):
     return
 
 def save_map_as_text(encoded_map, filename):
-    """Saves a numpy array of size 64x64x1 representing an encoded Wolf map as a text file"""
+    """Saves a numpy array of size 64x64x3 representing an encoded Wolf map as a text file"""
     with open(filename, "w") as fout:
         for y in range(64):
             for x in range(64):
-                if encoded_map[y, x] == EncodingDim.PLAYABLE:
+                if encoded_map[y, x, EncodingDim.PLAYABLE] == 1:
                     tile = ' '
-                elif encoded_map[y, x] == EncodingDim.SOLID:
+                elif encoded_map[y, x, EncodingDim.SOLID] == 1:
                     tile = '#'
-                elif encoded_map[y, x] == EncodingDim.PASSAGE:
+                elif encoded_map[y, x, EncodingDim.PASSAGE] == 1:
                     tile = '+'
 
                 fout.write(tile)
