@@ -167,3 +167,20 @@ def save_metamap(metamap, filename):
 
                 fout.write(struct.pack('b', tile_type))
     return
+
+def save_map_as_text(encoded_map, filename):
+    """Saves a numpy array of size 64x64x1 representing an encoded Wolf map as a text file"""
+    with open(filename, "w") as fout:
+        for y in range(64):
+            for x in range(64):
+                if encoded_map[y, x] == EncodingDim.PLAYABLE:
+                    tile = ' '
+                elif encoded_map[y, x] == EncodingDim.SOLID:
+                    tile = '#'
+                elif encoded_map[y, x] == EncodingDim.PASSAGE:
+                    tile = '+'
+
+                fout.write(tile)
+            fout.write('\n')
+
+    return
