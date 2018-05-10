@@ -108,3 +108,4 @@ metamaps_input
 /.vscode/settings.json
 *.h5
 /MegaMetaMap
+/MegaMetaMapCondensed
