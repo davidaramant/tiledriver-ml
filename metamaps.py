@@ -6,6 +6,21 @@ import numpy as np
 import os
 import random
 import numbers
+import time
+import datetime
+
+class time_execution:
+    """Times whatever happens inside the scope"""
+    def __enter__(self):
+        print(f"Started: {datetime.datetime.time(datetime.datetime.now())}")
+        self.t0 = time.perf_counter()
+        return self
+        
+    def __exit__(self, type, value, traceback):
+        t1 = time.perf_counter()
+        load_duration = t1 - self.t0
+        duration_str = time.strftime("%H:%M:%S", time.gmtime(load_duration))
+        print(f"Done. Took {duration_str}")
 
 METAMAP_FILE_VERSION = 0x100
 

@@ -102,10 +102,9 @@ ENV/
 
 #Custom
 *.metamap
+*.megametamap
 *.png
 metamaps
 metamaps_input
 /.vscode/settings.json
 *.h5
-/MegaMetaMap
-/MegaMetaMapCondensed
